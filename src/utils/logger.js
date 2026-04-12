@@ -27,14 +27,17 @@ const logger = winston.createLogger({
   ]
 });
 
-// If we're not in production, log to the console as well with a simpler format
-if (config.nodeEnv !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.simple()
-    )
-  }));
-}
+// Always log to console (stdout) so Render/cloud platforms capture logs
+logger.add(new winston.transports.Console({
+  format: config.nodeEnv === 'production'
+    ? winston.format.combine(
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        winston.format.simple()
+      )
+    : winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      )
+}));
 
 module.exports = logger;
