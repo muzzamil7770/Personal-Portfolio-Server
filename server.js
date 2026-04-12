@@ -2,9 +2,13 @@ const app = require('./src/app');
 const config = require('./src/config');
 const logger = require('./src/utils/logger');
 const { initFirebase } = require('./src/utils/firebase');
+const FirebaseLogTransport = require('./src/utils/firebaseLogTransport');
 
 // Initialize Firebase before starting server
 initFirebase();
+
+// Attach Firebase log transport after Firebase is ready
+logger.add(new FirebaseLogTransport({ level: 'info' }));
 
 // Start the server
 app.listen(config.port, () => {
