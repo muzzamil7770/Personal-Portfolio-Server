@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Thank You for Contacting</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <style type="text/css">
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    /* Reset styles */
+    body, table, td, a {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    img {
+      -ms-interpolation-mode: bicubic;
+    }
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+      height: 100% !important;
+      background-color: #f8fafc;
+    }
+    
+    /* Main styles */
+    .email-wrapper {
+      width: 100%;
+      background-color: #f8fafc;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .email-container {
+      max-width: 680px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    .email-header {
+      background: linear-gradient(135deg, #10b981 0%, #00aedc 100%);
+      padding: 50px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .email-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: pulse 15s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .email-header h1 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      position: relative;
+      z-index: 1;
+    }
+    .email-header .subtitle {
+      margin: 12px 0 0 0;
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 17px;
+      font-weight: 400;
+      position: relative;
+      z-index: 1;
+    }
+    .email-body {
+      padding: 45px 40px;
+    }
+    .greeting {
+      margin: 0 0 25px 0;
+      color: #1a202c;
+      font-size: 26px;
+      font-weight: 600;
+    }
+    .intro-text {
+      margin: 0 0 30px 0;
+      color: #4a5568;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+    .message-summary {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      border-left: 5px solid #10b981;
+      padding: 25px 30px;
+      margin: 30px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+    }
+    .summary-title {
+      margin: 0 0 20px 0;
+      color: #065f46;
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .info-row {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: #047857;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .info-value {
+      color: #1a202c;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .info-value a {
+      color: #10b981;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .timeline-card {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 2px solid #f59e0b;
+      padding: 30px;
+      margin: 35px 0;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    }
+    .timeline-title {
+      margin: 0 0 15px 0;
+      color: #92400e;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .timeline-text {
+      margin: 0;
+      color: #78350f;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .timeline-highlight {
+      display: inline-block;
+      background-color: #ffffff;
+      color: #f59e0b;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      margin: 0 4px;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
+    }
+    .contact-section {
+      background-color: #f7fafc;
+      padding: 30px;
+      margin: 35px 0;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+    .contact-title {
+      margin: 0 0 20px 0;
+      color: #2d3748;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .contact-links {
+      display: inline-block;
+    }
+    .contact-link {
+      display: inline-block;
+      margin: 8px 15px;
+      padding: 12px 24px;
+      background-color: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #4a5568;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .contact-link:hover {
+      border-color: #00aedc;
+      color: #00aedc;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .signature-section {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid #e2e8f0;
+    }
+    .signature-name {
+      margin: 0 0 8px 0;
+      color: #1a202c;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .signature-title {
+      margin: 0 0 15px 0;
+      color: #00aedc;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .signature-details {
+      margin: 0;
+      color: #718096;
+      font-size: 14px;
+      line-height: 2;
+    }
+    .signature-details a {
+      color: #00aedc;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .email-footer {
+      background-color: #f7fafc;
+      padding: 35px 40px;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+    }
+    .footer-text {
+      margin: 0;
+      color: #a0aec0;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .footer-brand {
+      margin: 15px 0 0 0;
+      color: #718096;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .divider {
+      height: 1px;
+      background-color: #e2e8f0;
+      margin: 30px 0;
+    }
+    
+    /* Responsive styles */
+    @media screen and (max-width: 600px) {
+      .email-header {
+        padding: 35px 25px;
+      }
+      .email-header h1 {
+        font-size: 28px;
+      }
+      .email-body {
+        padding: 35px 25px;
+      }
+      .message-summary, .timeline-card, .contact-section {
+        padding: 25px 20px;
+      }
+      .greeting {
+        font-size: 22px;
+      }
+      .contact-link {
+        display: block;
+        margin: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <table cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td align="center" style="padding: 30px 20px;">
+          <div class="email-container">
+            <!-- Header -->
+            <div class="email-header">
+              <h1>✅ Thank You!</h1>
+              <p class="subtitle">Your message has been received successfully</p>
+            </div>
+
+            <!-- Body -->
+            <div class="email-body">
+              <h2 class="greeting">Dear ${name},</h2>
+              <p class="intro-text">
+                Thank you for reaching out! I have successfully received your message and truly appreciate 
+                your interest in my work. Your inquiry is important to me, and I'm committed to providing 
+                you with a thoughtful and comprehensive response.
+              </p>
+
+              <!-- Message Summary Card -->
+              <div class="message-summary">
+                <h3 class="summary-title">📋 Your Message Summary</h3>
+                
+                <div class="info-row">
+                  <span class="info-label">Subject</span>
+                  <span class="info-value">${subject}</span>
+                </div>
+                
+                <div class="info-row">
+                  <span class="info-label">Your Message</span>
+                  <span class="info-value">${message}</span>
+                </div>
+                
+                <div class="info-row">
+                  <span class="info-label">Received</span>
+                  <span class="info-value">🕐 ${timestamp}</span>
+                </div>
+              </div>
+
+              <!-- Response Timeline -->
+              <div class="timeline-card">
+                <h3 class="timeline-title">⏱️ What Happens Next?</h3>
+                <p class="timeline-text">
+                  I will carefully review your message and get back to you within 
+                  <span class="timeline-highlight">24 hours</span> 
+                  with a detailed and personalized response.
+                </p>
+              </div>
+
+              <!-- Contact Links -->
+              <div class="contact-section">
+                <h3 class="contact-title">📞 In the Meantime, Feel Free To:</h3>
+                <div class="contact-links">
+                  <a href="mailto:mohammadmuzzamil7770@gmail.com" class="contact-link">📧 Email Me</a>
+                  <a href="https://www.linkedin.com/in/muzzamil-dev" target="_blank" class="contact-link">💼 LinkedIn</a>
+                  <a href="https://wa.me/923068667770" target="_blank" class="contact-link">💬 WhatsApp</a>
+                </div>
+              </div>
+
+              <!-- Signature -->
+              <div class="signature-section">
+                <p class="signature-name">Muhammad Muzzamil</p>
+                <p class="signature-title">Senior Software Engineer | Full-Stack Developer</p>
+                <p class="signature-details">
+                  📧 mohammadmuzzamil7770@gmail.com<br>
+                  📱 +92 306 8667770<br>
+                  💼 <a href="https://www.linkedin.com/in/muzzamil-dev" target="_blank">LinkedIn Profile</a><br>
+                  🌐 <a href="https://github.com/muzzamil-dev" target="_blank">GitHub Portfolio</a>
+                </p>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="email-footer">
+              <p class="footer-text">
+                This is an automated response from Muhammad Muzzamil's portfolio website.<br>
+                Your information is kept confidential and will not be shared with third parties.
+              </p>
+              <p class="footer-brand">
+                © ${year} Muhammad Muzzamil — Professional Portfolio
+              </p>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

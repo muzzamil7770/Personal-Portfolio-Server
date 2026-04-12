@@ -1,0 +1,63 @@
+{
+  "contacts": [
+    {
+      "id": "1775806701122",
+      "name": "Fatima Khan",
+      "email": "fatima.khan.dev@gmail.com",
+      "subject": "Need help with Angular project",
+      "message": "I am currently working on an Angular-based dashboard and facing issues with state management. Can you assist me with this?",
+      "status": "read",
+      "createdAt": "2026-04-10T08:10:11.122Z"
+    },
+    {
+      "id": "1775806702455",
+      "name": "Usman Tariq",
+      "email": "usman.tariq92@gmail.com",
+      "subject": "Website redesign request",
+      "message": "Our company website needs a modern redesign with better UI/UX. Let me know if you're available for a quick discussion.",
+      "status": "unread",
+      "createdAt": "2026-04-10T08:25:02.455Z"
+    },
+    {
+      "id": "1775809412925",
+      "name": "MOHAMMAD MUZZAMIL",
+      "email": "mohammadmuzzamil7770@gmail.com",
+      "subject": "Appointment Update",
+      "message": "asdasdasdsadsad",
+      "status": "unread",
+      "createdAt": "2026-04-10T08:23:32.925Z"
+    }
+  ],
+  "hires": [
+    {
+      "id": "1775806327155",
+      "name": "Ali Hassan",
+      "email": "ali.hassan.dev@gmail.com",
+      "budget": "PKR 80,000 - 120,000",
+      "message": "Looking for a full-stack developer to build a custom web application with admin panel and API integrations.",
+      "services": "Full Stack Development, API Integration",
+      "status": "pending",
+      "createdAt": "2026-04-10T07:32:07.155Z"
+    },
+    {
+      "id": "1775806638601",
+      "name": "Zainab Malik",
+      "email": "zainab.malik.ui@gmail.com",
+      "budget": "PKR 50,000 - 70,000",
+      "message": "Need a frontend developer to convert Figma designs into a responsive Angular application.",
+      "services": "Frontend Development, Angular",
+      "status": "pending",
+      "createdAt": "2026-04-10T07:37:18.601Z"
+    },
+    {
+      "id": "1775983466738",
+      "name": "Mohammad Muzzamil",
+      "email": "mohammadmuzzamil7770@gmail.com",
+      "budget": "23",
+      "message": "Test Ho gya hy or kia karna hy Bhai ",
+      "services": "",
+      "status": "pending",
+      "createdAt": "2026-04-12T08:44:26.738Z"
+    }
+  ]
+}

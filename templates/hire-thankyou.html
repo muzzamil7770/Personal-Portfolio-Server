@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Hire Request Confirmation</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <style type="text/css">
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    /* Reset styles */
+    body, table, td, a {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    img {
+      -ms-interpolation-mode: bicubic;
+    }
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+      height: 100% !important;
+      background-color: #f8fafc;
+    }
+    
+    /* Main styles */
+    .email-wrapper {
+      width: 100%;
+      background-color: #f8fafc;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .email-container {
+      max-width: 680px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    .email-header {
+      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+      padding: 50px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .email-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+      animation: pulse 15s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .email-header h1 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      position: relative;
+      z-index: 1;
+    }
+    .email-header .subtitle {
+      margin: 12px 0 0 0;
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 17px;
+      font-weight: 400;
+      position: relative;
+      z-index: 1;
+    }
+    .email-body {
+      padding: 45px 40px;
+    }
+    .greeting {
+      margin: 0 0 25px 0;
+      color: #1a202c;
+      font-size: 26px;
+      font-weight: 600;
+    }
+    .intro-text {
+      margin: 0 0 30px 0;
+      color: #4a5568;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+    .request-summary {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-left: 5px solid #f59e0b;
+      padding: 30px;
+      margin: 30px 0;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
+    }
+    .summary-title {
+      margin: 0 0 22px 0;
+      color: #92400e;
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .info-row {
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: #b45309;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .info-value {
+      color: #1a202c;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .info-value.highlight {
+      color: #10b981;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .next-steps {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border: 2px solid #3b82f6;
+      padding: 35px;
+      margin: 35px 0;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    .steps-title {
+      margin: 0 0 25px 0;
+      color: #1e40af;
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .steps-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .step-item {
+      position: relative;
+      padding: 18px 20px 18px 65px;
+      margin: 15px 0;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    }
+    .step-number {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 0 3px 8px rgba(59, 130, 246, 0.3);
+    }
+    .step-text {
+      margin: 0;
+      color: #1e40af;
+      font-size: 15px;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+    .timeline-highlight {
+      display: inline-block;
+      background-color: #ffffff;
+      color: #3b82f6;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      margin: 0 4px;
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+    }
+    .signature-section {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid #e2e8f0;
+    }
+    .signature-name {
+      margin: 0 0 8px 0;
+      color: #1a202c;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .signature-title {
+      margin: 0 0 15px 0;
+      color: #f59e0b;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .signature-details {
+      margin: 0;
+      color: #718096;
+      font-size: 14px;
+      line-height: 2;
+    }
+    .signature-details a {
+      color: #f59e0b;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .email-footer {
+      background-color: #f7fafc;
+      padding: 35px 40px;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+    }
+    .footer-text {
+      margin: 0;
+      color: #a0aec0;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .footer-brand {
+      margin: 15px 0 0 0;
+      color: #718096;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .divider {
+      height: 1px;
+      background-color: #e2e8f0;
+      margin: 30px 0;
+    }
+    
+    /* Responsive styles */
+    @media screen and (max-width: 600px) {
+      .email-header {
+        padding: 35px 25px;
+      }
+      .email-header h1 {
+        font-size: 28px;
+      }
+      .email-body {
+        padding: 35px 25px;
+      }
+      .request-summary, .next-steps {
+        padding: 25px 20px;
+      }
+      .greeting {
+        font-size: 22px;
+      }
+      .step-item {
+        padding-left: 55px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <table cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td align="center" style="padding: 30px 20px;">
+          <div class="email-container">
+            <!-- Header -->
+            <div class="email-header">
+              <h1>🎉 Hire Request Received!</h1>
+              <p class="subtitle">Thank you for considering Muhammad for your project</p>
+            </div>
+
+            <!-- Body -->
+            <div class="email-body">
+              <h2 class="greeting">Dear ${name},</h2>
+              <p class="intro-text">
+                Thank you so much for considering me for your project! I have received your hire request 
+                and I'm genuinely excited about the possibility of working together. Your project sounds 
+                interesting, and I'm committed to delivering exceptional results.
+              </p>
+
+              <!-- Request Summary Card -->
+              <div class="request-summary">
+                <h3 class="summary-title">📋 Your Request Summary</h3>
+                
+                ${servicesRow}
+                
+                ${budgetRow}
+                
+                <div class="info-row">
+                  <span class="info-label">Received</span>
+                  <span class="info-value">🕐 ${timestamp}</span>
+                </div>
+              </div>
+
+              <!-- Next Steps Timeline -->
+              <div class="next-steps">
+                <h3 class="steps-title">⏱️ What Happens Next?</h3>
+                <ol class="steps-list">
+                  <li class="step-item">
+                    <span class="step-number">1</span>
+                    <p class="step-text">I will thoroughly review your project requirements and understand your vision</p>
+                  </li>
+                  <li class="step-item">
+                    <span class="step-number">2</span>
+                    <p class="step-text">Prepare a comprehensive proposal with detailed timeline and milestones</p>
+                  </li>
+                  <li class="step-item">
+                    <span class="step-number">3</span>
+                    <p class="step-text">Get back to you within <span class="timeline-highlight">24 hours</span> with my response</p>
+                  </li>
+                  <li class="step-item">
+                    <span class="step-number">4</span>
+                    <p class="step-text">Schedule a call or meeting if needed to discuss project details</p>
+                  </li>
+                </ol>
+              </div>
+
+              <!-- Signature -->
+              <div class="signature-section">
+                <p class="signature-name">Muhammad Muzzamil</p>
+                <p class="signature-title">Senior Software Engineer | Full-Stack Developer</p>
+                <p class="signature-details">
+                  📧 mohammadmuzzamil7770@gmail.com<br>
+                  📱 +92 306 8667770<br>
+                  💼 <a href="https://www.linkedin.com/in/muzzamil-dev" target="_blank">LinkedIn Profile</a><br>
+                  🌐 <a href="https://github.com/muzzamil-dev" target="_blank">GitHub Portfolio</a><br>
+                  🌍 <a href="https://muzzamil-portfolio.com" target="_blank">Professional Website</a>
+                </p>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="email-footer">
+              <p class="footer-text">
+                This is an automated response from Muhammad Muzzamil's portfolio website.<br>
+                I look forward to potentially working with you on your exciting project!
+              </p>
+              <p class="footer-brand">
+                © ${year} Muhammad Muzzamil — Professional Portfolio
+              </p>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
