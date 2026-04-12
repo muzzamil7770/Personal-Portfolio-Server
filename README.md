@@ -322,8 +322,8 @@ flowchart TD
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/portfolio-backend.git
-cd portfolio-backend
+git clone https://github.com/muzzamil7770/Personal-Portfolio-Server
+cd Personal-Portfolio-Server
 
 # 2. Install dependencies
 npm install

@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const { hireController, getHires, getHireById, updateHire, deleteHire } = require('../controllers/hire.controller');
-const auth = require('../middlewares/authMiddleware');
+const { verifyToken } = require('../middlewares/authMiddleware');
+const dailyIpLimit = require('../middlewares/dailyIpLimit');
 
-// Public — form submission
-router.post('/', hireController);
+// Public — form submission (daily IP limit applies in production)
+router.post('/', dailyIpLimit, hireController);
 
 // Admin CRUD (protected)
-router.get('/', auth, getHires);
-router.get('/:id', auth, getHireById);
-router.put('/:id', auth, updateHire);
-router.delete('/:id', auth, deleteHire);
+router.get('/', verifyToken, getHires);
+router.get('/:id', verifyToken, getHireById);
+router.put('/:id', verifyToken, updateHire);
+router.delete('/:id', verifyToken, deleteHire);
 
 module.exports = router;

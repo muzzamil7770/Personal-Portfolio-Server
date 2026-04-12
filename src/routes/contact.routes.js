@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const { contactController, getContacts, getContactById, updateContact, deleteContact } = require('../controllers/contact.controller');
-const auth = require('../middlewares/authMiddleware');
+const { verifyToken } = require('../middlewares/authMiddleware');
+const dailyIpLimit = require('../middlewares/dailyIpLimit');
 
-// Public — form submission
-router.post('/', contactController);
+// Public — form submission (daily IP limit applies in production)
+router.post('/', dailyIpLimit, contactController);
 
 // Admin CRUD (protected)
-router.get('/', auth, getContacts);
-router.get('/:id', auth, getContactById);
-router.put('/:id', auth, updateContact);
-router.delete('/:id', auth, deleteContact);
+router.get('/', verifyToken, getContacts);
+router.get('/:id', verifyToken, getContactById);
+router.put('/:id', verifyToken, updateContact);
+router.delete('/:id', verifyToken, deleteContact);
 
 module.exports = router;

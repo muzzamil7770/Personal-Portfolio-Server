@@ -1,12 +1,11 @@
 const { contactSchema } = require('../middlewares/validator');
 const { sendContactNotification, sendContactThankYou } = require('../services/email.service');
-const { readDb, writeDb } = require('../utils/db');
+const { saveContact, getAllContacts, getContactById, updateContact, deleteContact } = require('../utils/db');
 const logger = require('../utils/logger');
 
 const contactController = async (req, res, next) => {
   try {
     const { error, value } = contactSchema.validate(req.body, { abortEarly: false });
-
     if (error) {
       return res.status(400).json({
         success: false,
@@ -16,26 +15,22 @@ const contactController = async (req, res, next) => {
     }
 
     const { name, email, subject, message } = value;
-
-    // Save to db.json
-    const db = readDb();
     const record = {
       id: Date.now().toString(),
       name, email, subject, message,
       status: 'unread',
       createdAt: new Date().toISOString()
     };
-    db.contacts.push(record);
-    writeDb(db);
-    logger.info(`💾 Contact saved to db: ${record.id}`);
 
-    // Send emails (non-blocking)
+    await saveContact(record);
+    logger.info(`💾 Contact saved to Firestore: ${record.id}`);
+
     try {
       await Promise.all([
         sendContactNotification({ name, email, subject, message }),
         sendContactThankYou({ name, email, subject, message })
       ]);
-      logger.info(`✅ Contact emails sent successfully`);
+      logger.info('✅ Contact emails sent successfully');
     } catch (emailError) {
       logger.error('⚠️ Email sending failed:', emailError.message);
     }
@@ -45,45 +40,53 @@ const contactController = async (req, res, next) => {
       message: "Message sent successfully! I'll get back to you within 24 hours.",
       data: record
     });
-
   } catch (error) {
     logger.error('❌ Contact form submission failed:', error);
     next(error);
   }
 };
 
-// GET all contacts
-const getContacts = (req, res) => {
-  const { contacts } = readDb();
-  res.json({ success: true, data: contacts });
+const getContacts = async (req, res, next) => {
+  try {
+    const contacts = await getAllContacts();
+    res.json({ success: true, data: contacts });
+  } catch (error) {
+    next(error);
+  }
 };
 
-// GET contact by id
-const getContactById = (req, res) => {
-  const { contacts } = readDb();
-  const record = contacts.find(c => c.id === req.params.id);
-  if (!record) return res.status(404).json({ success: false, message: 'Contact not found' });
-  res.json({ success: true, data: record });
+const getContactByIdHandler = async (req, res, next) => {
+  try {
+    const record = await getContactById(req.params.id);
+    if (!record) return res.status(404).json({ success: false, message: 'Contact not found' });
+    res.json({ success: true, data: record });
+  } catch (error) {
+    next(error);
+  }
 };
 
-// PUT update contact by id
-const updateContact = (req, res) => {
-  const db = readDb();
-  const index = db.contacts.findIndex(c => c.id === req.params.id);
-  if (index === -1) return res.status(404).json({ success: false, message: 'Contact not found' });
-  db.contacts[index] = { ...db.contacts[index], ...req.body, id: req.params.id };
-  writeDb(db);
-  res.json({ success: true, data: db.contacts[index] });
+const updateContactHandler = async (req, res, next) => {
+  try {
+    const updated = await updateContact(req.params.id, req.body);
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    next(error);
+  }
 };
 
-// DELETE contact by id
-const deleteContact = (req, res) => {
-  const db = readDb();
-  const index = db.contacts.findIndex(c => c.id === req.params.id);
-  if (index === -1) return res.status(404).json({ success: false, message: 'Contact not found' });
-  db.contacts.splice(index, 1);
-  writeDb(db);
-  res.json({ success: true, message: 'Contact deleted successfully' });
+const deleteContactHandler = async (req, res, next) => {
+  try {
+    await deleteContact(req.params.id);
+    res.json({ success: true, message: 'Contact deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
 };
 
-module.exports = { contactController, getContacts, getContactById, updateContact, deleteContact };
+module.exports = {
+  contactController,
+  getContacts,
+  getContactById: getContactByIdHandler,
+  updateContact: updateContactHandler,
+  deleteContact: deleteContactHandler
+};

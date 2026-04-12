@@ -2,19 +2,19 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
+const config = require('../config');
 const logger = require('../utils/logger');
 const { generate2FACode, store2FACode, verify2FACode } = require('../services/twoFA.service');
 const { send2FAVerification } = require('../services/email.service');
 
 const loginLimiter = rateLimit({
-  windowMs: 3 * 60 * 1000, // 3 min
+  windowMs: 3 * 60 * 1000,
   max: 10,
   message: { success: false, message: 'Too many login attempts. Try again in 3 minutes.' }
 });
 
-// 2FA code request limiter
 const twoFALimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 min
+  windowMs: 5 * 60 * 1000,
   max: 5,
   message: { success: false, message: 'Too many 2FA requests. Please wait before requesting again.' }
 });
@@ -31,23 +31,29 @@ router.post('/login', loginLimiter, async (req, res) => {
   if (username !== process.env.ADMIN_USERNAME || password !== process.env.ADMIN_PASSWORD)
     return res.status(401).json({ success: false, message: 'Invalid credentials.' });
 
+  const code = generate2FACode();
+  const adminEmail = process.env.EMAIL_USER;
+  store2FACode(adminEmail, code);
+
+  // Always log OTP to server logs
+  logger.info(`🔐 2FA OTP for admin login: [ ${code} ] (expires in 5 minutes)`);
+
+  if (!config.email.enabled) {
+    logger.warn('⚠️  EMAIL_ENABLED=false — OTP not sent via email. Use the OTP printed in server logs.');
+    return res.json({
+      success: true,
+      message: '2FA code generated. Email is disabled — check server logs for the OTP.',
+      requires2FA: true
+    });
+  }
+
   try {
-    // Generate 2FA code
-    const code = generate2FACode();
-    const adminEmail = process.env.EMAIL_USER;
-    
-    // Store code with expiry
-    store2FACode(adminEmail, code);
-    
-    // Send 2FA code via email
     await send2FAVerification(adminEmail, code);
-    
-    logger.info(`🔐 2FA code sent to admin email for login attempt by: ${username}`);
-    
-    res.json({ 
-      success: true, 
+    logger.info(`📨 2FA code emailed to admin: ${adminEmail}`);
+    res.json({
+      success: true,
       message: '2FA code sent to your email. Please verify to complete login.',
-      requires2FA: true 
+      requires2FA: true
     });
   } catch (error) {
     logger.error('❌ Failed to send 2FA code:', error);
@@ -67,19 +73,17 @@ router.post('/verify-2fa', twoFALimiter, (req, res) => {
   const adminEmail = process.env.EMAIL_USER;
   const verification = verify2FACode(adminEmail, code);
 
-  if (!verification.valid) {
+  if (!verification.valid)
     return res.status(401).json({ success: false, message: verification.message });
-  }
 
-  // Generate JWT token
   const token = jwt.sign({ role: 'admin', email: adminEmail }, process.env.JWT_SECRET, { expiresIn: '8h' });
-  
-  logger.info(`✅ Admin login successful with 2FA verification`);
-  
-  res.json({ 
-    success: true, 
+
+  logger.info('✅ Admin login successful with 2FA verification');
+
+  res.json({
+    success: true,
     token,
-    message: 'Login successful! Welcome back, Muhammad.' 
+    message: 'Login successful! Welcome back, Muhammad.'
   });
 });
 
@@ -87,12 +91,19 @@ router.post('/verify-2fa', twoFALimiter, (req, res) => {
  * Resend 2FA code
  */
 router.post('/resend-2fa', twoFALimiter, async (req, res) => {
+  const adminEmail = process.env.EMAIL_USER;
+  const code = generate2FACode();
+  store2FACode(adminEmail, code);
+
+  logger.info(`🔐 2FA OTP resent for admin: [ ${code} ] (expires in 5 minutes)`);
+
+  if (!config.email.enabled) {
+    logger.warn('⚠️  EMAIL_ENABLED=false — OTP not sent via email. Use the OTP printed in server logs.');
+    return res.json({ success: true, message: 'New 2FA code generated. Check server logs for the OTP.' });
+  }
+
   try {
-    const adminEmail = process.env.EMAIL_USER;
-    const code = generate2FACode();
-    store2FACode(adminEmail, code);
     await send2FAVerification(adminEmail, code);
-    
     res.json({ success: true, message: 'New 2FA code sent to your email.' });
   } catch (error) {
     logger.error('❌ Failed to resend 2FA code:', error);

@@ -13,6 +13,7 @@ const hireRoutes = require('./routes/hire.routes');
 const authRoutes = require('./routes/auth.routes');
 const cvRoutes = require('./routes/cv.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
+const aiChatbotRoutes = require('./routes/aiChatbot.routes');
 
 // Initialize Express app
 const app = express();
@@ -57,14 +58,20 @@ app.use(morgan('combined', {
 
 // General rate limiter
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 150 * 60 * 1000, // 15 minutes
+  max: 1001, // Limit each IP to 100 requests per windowMs
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: (req) => {
+    const authHeader = req.headers.authorization;
+    const isAnalyticsHeartbeat = req.path === '/api/analytics/heartbeat';
+    const isAnalyticsLive = req.path === '/api/analytics/live';
+    return authHeader && authHeader.startsWith('Bearer ') || isAnalyticsHeartbeat || isAnalyticsLive;
+  }
 });
 
 // Strict rate limiter for PUBLIC email form submissions only
@@ -112,6 +119,7 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/hire', hireRoutes);
 app.use('/api/cv', cvRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/chat', aiChatbotRoutes);
 
 // ============================================
 // ERROR HANDLING

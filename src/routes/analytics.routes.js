@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/authMiddleware');
-const { track, live, stats } = require('../controllers/analytics.controller');
+const { verifyToken } = require('../middlewares/authMiddleware');
+const { track, heartbeat, live, stats } = require('../controllers/analytics.controller');
 
-router.post('/track', track);       // public — called on every page load
-router.get('/live', live);          // public — watching count only
-router.get('/stats', auth, stats);  // admin only — full stats + logs
+router.post('/track', track);          // public — called on every page load
+router.post('/heartbeat', heartbeat);  // public — called every 30s to keep session alive
+router.get('/live', live);             // public — watching count only
+router.get('/stats', verifyToken, stats);     // admin only — full stats + logs
 
 module.exports = router;

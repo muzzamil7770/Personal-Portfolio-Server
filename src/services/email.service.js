@@ -4,23 +4,16 @@ const path = require('path');
 const config = require('../config');
 const logger = require('../utils/logger');
 
-// Email template paths
 const TEMPLATE_DIR = path.join(__dirname, '../../templates');
 
-/**
- * Load and compile email template with data
- */
 const loadTemplate = (templateName, data) => {
   try {
     const templatePath = path.join(TEMPLATE_DIR, `${templateName}.html`);
     let template = fs.readFileSync(templatePath, 'utf-8');
-    
-    // Replace template variables with actual data
     Object.keys(data).forEach(key => {
       const regex = new RegExp(`\\$\\{${key}\\}`, 'g');
       template = template.replace(regex, data[key] || '');
     });
-    
     return template;
   } catch (error) {
     logger.error(`❌ Failed to load template ${templateName}:`, error.message);
@@ -28,9 +21,6 @@ const loadTemplate = (templateName, data) => {
   }
 };
 
-/**
- * Get professional email subject based on template type
- */
 const getSubject = (type, data) => {
   const subjects = {
     'contact-notification': `🚀 New Portfolio Inquiry from ${data.name} — ${data.subject}`,
@@ -41,40 +31,42 @@ const getSubject = (type, data) => {
   return subjects[type] || 'Portfolio Contact';
 };
 
-// Create reusable transporter
-const transporter = nodemailer.createTransport({
-  host: config.email.host,
-  port: config.email.port,
-  secure: config.email.secure,
-  auth: {
-    user: config.email.user,
-    pass: config.email.pass
-  }
-});
+// Create transporter only if email is enabled
+const transporter = config.email.enabled
+  ? nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: config.email.user,
+        pass: config.email.pass
+      }
+    })
+  : null;
 
-// Verify transporter configuration
-transporter.verify((error, success) => {
-  if (error) {
-    logger.error('❌ Email transporter verification failed:', error.message);
-    logger.error('Please check your .env file and ensure EMAIL_PASS is set correctly.');
-  } else {
-    logger.info('✅ Email transporter is ready to send messages');
-  }
-});
+if (config.email.enabled) {
+  transporter.verify((error) => {
+    if (error) {
+      logger.error('❌ Email transporter verification failed:', error.message);
+      logger.error('Hint: Check EMAIL_USER and EMAIL_PASS (Gmail App Password) in environment variables.');
+    } else {
+      logger.info('✅ Email transporter is ready to send messages');
+    }
+  });
+} else {
+  logger.warn('⚠️  EMAIL_ENABLED=false — Email service is disabled. No emails will be sent.');
+}
 
-/**
- * Send contact notification to PORTFOLIO OWNER
- */
 const sendContactNotification = async (data) => {
   const { name, email, subject, message } = data;
-
+  if (!config.email.enabled) {
+    logger.info('📧 [EMAIL DISABLED] Skipping contact notification email.');
+    return { success: true, skipped: true };
+  }
   const now = new Date();
   const htmlContent = loadTemplate('contact-notification', {
     name, email, subject, message,
     timestamp: now.toLocaleString('en-US', { timeZone: 'Asia/Karachi', dateStyle: 'full', timeStyle: 'short' }),
     year: now.getFullYear()
   });
-
   const mailOptions = {
     from: `"Muhammad Muzzamil's Portfolio" <${config.email.user}>`,
     to: config.email.user,
@@ -82,7 +74,6 @@ const sendContactNotification = async (data) => {
     subject: getSubject('contact-notification', { name, subject }),
     html: htmlContent
   };
-
   try {
     await transporter.sendMail(mailOptions);
     logger.info(`✅ Contact notification sent to ${config.email.user} from ${email}`);
@@ -93,19 +84,18 @@ const sendContactNotification = async (data) => {
   }
 };
 
-/**
- * Send thank you email to CLIENT
- */
 const sendContactThankYou = async (data) => {
   const { name, email, subject, message } = data;
-
+  if (!config.email.enabled) {
+    logger.info('📧 [EMAIL DISABLED] Skipping contact thank you email.');
+    return { success: true, skipped: true };
+  }
   const now = new Date();
   const htmlContent = loadTemplate('contact-thankyou', {
     name, email, subject, message,
     timestamp: now.toLocaleString('en-US', { timeZone: 'Asia/Karachi', dateStyle: 'full', timeStyle: 'short' }),
     year: now.getFullYear()
   });
-
   const mailOptions = {
     from: `"Muhammad Muzzamil" <${config.email.user}>`,
     to: email,
@@ -113,7 +103,6 @@ const sendContactThankYou = async (data) => {
     subject: getSubject('contact-thankyou', { name }),
     html: htmlContent
   };
-
   try {
     await transporter.sendMail(mailOptions);
     logger.info(`✅ Thank you email sent to client: ${email}`);
@@ -124,12 +113,12 @@ const sendContactThankYou = async (data) => {
   }
 };
 
-/**
- * Send hire notification to PORTFOLIO OWNER
- */
 const sendHireNotification = async (data) => {
   const { name, email, budget, message, services } = data;
-
+  if (!config.email.enabled) {
+    logger.info('📧 [EMAIL DISABLED] Skipping hire notification email.');
+    return { success: true, skipped: true };
+  }
   const now = new Date();
   const budgetRow = budget
     ? `<div class="info-row"><span class="info-label">Project Budget</span><span class="info-value highlight">💰 ${budget}</span></div>`
@@ -140,14 +129,12 @@ const sendHireNotification = async (data) => {
   const budgetBadge = budget
     ? `<div style="text-align:center;margin:25px 0;"><span class="urgency-badge">🎯 Budget Confirmed: ${budget}</span></div>`
     : '';
-
   const htmlContent = loadTemplate('hire-notification', {
     name, email, message,
     budgetRow, servicesRow, budgetBadge,
     timestamp: now.toLocaleString('en-US', { timeZone: 'Asia/Karachi', dateStyle: 'full', timeStyle: 'short' }),
     year: now.getFullYear()
   });
-
   const mailOptions = {
     from: `"Muhammad Muzzamil's Portfolio" <${config.email.user}>`,
     to: config.email.user,
@@ -155,7 +142,6 @@ const sendHireNotification = async (data) => {
     subject: getSubject('hire-notification', { name, budget }),
     html: htmlContent
   };
-
   try {
     await transporter.sendMail(mailOptions);
     logger.info(`✅ Hire notification sent to ${config.email.user} from ${name}`);
@@ -166,12 +152,12 @@ const sendHireNotification = async (data) => {
   }
 };
 
-/**
- * Send hire thank you to CLIENT
- */
 const sendHireThankYou = async (data) => {
   const { name, email, budget, message, services } = data;
-
+  if (!config.email.enabled) {
+    logger.info('📧 [EMAIL DISABLED] Skipping hire thank you email.');
+    return { success: true, skipped: true };
+  }
   const now = new Date();
   const budgetRow = budget
     ? `<div class="info-row"><span class="info-label">Project Budget</span><span class="info-value highlight">💰 ${budget}</span></div>`
@@ -179,14 +165,12 @@ const sendHireThankYou = async (data) => {
   const servicesRow = services
     ? `<div class="info-row"><span class="info-label">Requested Services</span><span class="info-value">${services}</span></div>`
     : '';
-
   const htmlContent = loadTemplate('hire-thankyou', {
     name, email, message,
     budgetRow, servicesRow,
     timestamp: now.toLocaleString('en-US', { timeZone: 'Asia/Karachi', dateStyle: 'full', timeStyle: 'short' }),
     year: now.getFullYear()
   });
-
   const mailOptions = {
     from: `"Muhammad Muzzamil" <${config.email.user}>`,
     to: email,
@@ -194,7 +178,6 @@ const sendHireThankYou = async (data) => {
     subject: getSubject('hire-thankyou', { name }),
     html: htmlContent
   };
-
   try {
     await transporter.sendMail(mailOptions);
     logger.info(`✅ Hire thank you email sent to client: ${email}`);
@@ -205,28 +188,25 @@ const sendHireThankYou = async (data) => {
   }
 };
 
-/**
- * Send 2FA verification code email
- */
 const send2FAVerification = async (email, code) => {
+  if (!config.email.enabled) {
+    logger.info('📧 [EMAIL DISABLED] Skipping 2FA email.');
+    return { success: true, skipped: true };
+  }
   const now = new Date();
   const expiry = new Date(now.getTime() + 5 * 60 * 1000);
-
-  // Load professional template
   const htmlContent = loadTemplate('twoFA-verification', {
     code,
     email,
     timestamp: now.toLocaleString('en-US', { timeZone: 'Asia/Karachi', dateStyle: 'full', timeStyle: 'medium' }),
     expiry: expiry.toLocaleString('en-US', { timeZone: 'Asia/Karachi', dateStyle: 'full', timeStyle: 'medium' })
   });
-
   const mailOptions = {
     from: `"Portfolio Security" <${config.email.user}>`,
     to: email,
     subject: `🔐 Your 2FA Verification Code - ${code}`,
     html: htmlContent
   };
-
   try {
     await transporter.sendMail(mailOptions);
     logger.info(`✅ 2FA code sent to: ${email}`);

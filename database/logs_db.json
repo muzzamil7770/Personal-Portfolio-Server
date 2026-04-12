@@ -55,6 +55,17 @@
       "date": "2026-04-12",
       "month": "2026-04",
       "timestamp": "2026-04-12T08:43:56.217Z"
+    },
+    {
+      "id": "1776001842446",
+      "sessionId": "vc0nvedotfmmnvtn3yp",
+      "ip": "::1",
+      "page": "/",
+      "referrer": "",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+      "date": "2026-04-12",
+      "month": "2026-04",
+      "timestamp": "2026-04-12T13:50:42.446Z"
     }
   ]
 }

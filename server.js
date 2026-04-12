@@ -1,6 +1,10 @@
 const app = require('./src/app');
 const config = require('./src/config');
 const logger = require('./src/utils/logger');
+const { initFirebase } = require('./src/utils/firebase');
+
+// Initialize Firebase before starting server
+initFirebase();
 
 // Start the server
 app.listen(config.port, () => {
