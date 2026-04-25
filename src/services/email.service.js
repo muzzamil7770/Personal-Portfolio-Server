@@ -26,7 +26,9 @@ const getSubject = (type, data) => {
     'contact-notification': `🚀 New Portfolio Inquiry from ${data.name} — ${data.subject}`,
     'contact-thankyou': `✅ Thank You for Reaching Out! — Muhammad Muzzamil`,
     'hire-notification': `💼 [URGENT] New Hire Request: ${data.name} — ${data.budget || 'Budget TBA'}`,
-    'hire-thankyou': `🎉 Your Project Request is Received! — Next Steps Inside`
+    'hire-thankyou': `🎉 Your Project Request is Received! — Next Steps Inside`,
+    'meeting-notification': `📅 New Meeting Scheduled: ${data.name} — ${data.date} at ${data.time}`,
+    'meeting-thankyou': `✅ Meeting Confirmed! — ${data.date} at ${data.time}`
   };
   return subjects[type] || 'Portfolio Contact';
 };
@@ -34,12 +36,12 @@ const getSubject = (type, data) => {
 // Create transporter only if email is enabled
 const transporter = config.email.enabled
   ? nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: config.email.user,
-        pass: config.email.pass
-      }
-    })
+    service: 'gmail',
+    auth: {
+      user: config.email.user,
+      pass: config.email.pass
+    }
+  })
   : null;
 
 if (config.email.enabled) {
@@ -217,10 +219,68 @@ const send2FAVerification = async (email, code) => {
   }
 };
 
+const sendMeetingNotification = async (data) => {
+  const { name, email, date, time, topic } = data;
+  if (!config.email.enabled) {
+    logger.info('📧 [EMAIL DISABLED] Skipping meeting notification email.');
+    return { success: true, skipped: true };
+  }
+  const now = new Date();
+  const htmlContent = loadTemplate('meeting-notification', {
+    name, email, date, time, topic,
+    year: now.getFullYear()
+  });
+  const mailOptions = {
+    from: `"Muhammad Muzzamil's Portfolio" <${config.email.user}>`,
+    to: config.email.user,
+    replyTo: email,
+    subject: getSubject('meeting-notification', { name, date, time }),
+    html: htmlContent
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info(`✅ Meeting notification sent to ${config.email.user} from ${email}`);
+    return { success: true };
+  } catch (error) {
+    logger.error('❌ Failed to send meeting notification:', error);
+    throw error;
+  }
+};
+
+const sendMeetingThankYou = async (data) => {
+  const { name, email, date, time, topic } = data;
+  if (!config.email.enabled) {
+    logger.info('📧 [EMAIL DISABLED] Skipping meeting thank you email.');
+    return { success: true, skipped: true };
+  }
+  const now = new Date();
+  const htmlContent = loadTemplate('meeting-thankyou', {
+    name, email, date, time, topic,
+    year: now.getFullYear()
+  });
+  const mailOptions = {
+    from: `"Muhammad Muzzamil" <${config.email.user}>`,
+    to: email,
+    replyTo: config.email.user,
+    subject: getSubject('meeting-thankyou', { name, date, time }),
+    html: htmlContent
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info(`✅ Meeting thank you email sent to client: ${email}`);
+    return { success: true };
+  } catch (error) {
+    logger.error('❌ Failed to send meeting thank you email:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   sendContactNotification,
   sendContactThankYou,
   sendHireNotification,
   sendHireThankYou,
-  send2FAVerification
+  send2FAVerification,
+  sendMeetingNotification,
+  sendMeetingThankYou
 };

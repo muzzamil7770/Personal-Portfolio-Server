@@ -3,6 +3,8 @@ const config = require('./src/config');
 const logger = require('./src/utils/logger');
 const { initFirebase } = require('./src/utils/firebase');
 const FirebaseLogTransport = require('./src/utils/firebaseLogTransport');
+const http = require('http');
+const { initSocket } = require('./src/socket');
 
 // Initialize Firebase before starting server
 initFirebase();
@@ -10,8 +12,14 @@ initFirebase();
 // Attach Firebase log transport after Firebase is ready
 logger.add(new FirebaseLogTransport({ level: 'info' }));
 
+// Create HTTP server
+const server = http.createServer(app);
+
+// Initialize Socket.io
+initSocket(server);
+
 // Start the server
-app.listen(config.port, () => {
+server.listen(config.port, () => {
   logger.info(`
 ╔════════════════════════════════════════════════════════╗
 ║                                                        ║
@@ -27,23 +35,25 @@ app.listen(config.port, () => {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  logger.error('Unhandled Rejection:', err);
+  if (logger) logger.error('Unhandled Rejection:', err);
+  else console.error('Unhandled Rejection:', err);
   process.exit(1);
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  logger.error('Uncaught Exception:', err);
+  if (logger) logger.error('Uncaught Exception:', err);
+  else console.error('Uncaught Exception:', err);
   process.exit(1);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  logger.info('SIGTERM received. Shutting down gracefully...');
+  if (logger) logger.info('SIGTERM received. Shutting down gracefully...');
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  logger.info('SIGINT received. Shutting down gracefully...');
+  if (logger) logger.info('SIGINT received. Shutting down gracefully...');
   process.exit(0);
 });

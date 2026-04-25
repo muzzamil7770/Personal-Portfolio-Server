@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Confirmed</title>
+    <style type="text/css">
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .details {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #64748b;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .value {
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #94a3b8;
+            font-size: 13px;
+            background: #f8fafc;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #6366f1;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Meeting Confirmed!</h1>
+            <p>I'm looking forward to our discussion.</p>
+        </div>
+        <div class="content">
+            <p>Hello ${name},</p>
+            <p>Thank you for scheduling a meeting with me. Your appointment has been confirmed for the following time:
+            </p>
+            <div class="details">
+                <div class="detail-row"><span class="label">Date</span><span class="value">${date}</span></div>
+                <div class="detail-row"><span class="label">Time</span><span class="value">${time}</span></div>
+                <div class="detail-row"><span class="label">Topic</span><span class="value">${topic}</span></div>
+            </div>
+            <p>The meeting will be held via Google Meet (Link will be sent separately) or as per our prior discussion.
+            </p>
+            <p>If you need to reschedule, please reply to this email.</p>
+        </div>
+        <div class="footer">
+            <p>© ${year} Muhammad Muzzamil Portfolio</p>
+        </div>
+    </div>
+</body>
+
+</html>

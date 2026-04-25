@@ -14,6 +14,8 @@ const authRoutes = require('./routes/auth.routes');
 const cvRoutes = require('./routes/cv.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const aiChatbotRoutes = require('./routes/aiChatbot.routes');
+const meetingRoutes = require('./routes/meeting.routes');
+const availabilityRoutes = require('./routes/availability.routes');
 
 // Initialize Express app
 const app = express();
@@ -120,6 +122,8 @@ app.use('/api/hire', hireRoutes);
 app.use('/api/cv', cvRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chat', aiChatbotRoutes);
+app.use('/api/meetings', meetingRoutes);
+app.use('/api/availability', availabilityRoutes);
 
 // ============================================
 // ERROR HANDLING

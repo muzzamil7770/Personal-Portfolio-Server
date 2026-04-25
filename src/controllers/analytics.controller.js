@@ -1,4 +1,5 @@
 const { getFirestore, getRTDB } = require('../utils/firebase');
+const { getNotificationsByIP } = require('../utils/db');
 const logger = require('../utils/logger');
 
 const SESSION_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
@@ -176,7 +177,18 @@ exports.stats = async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('❌ Analytics stats failed:', error.message);
     res.status(500).json({ success: false, message: 'Failed to get analytics stats' });
+  }
+};
+
+// ── GET /api/analytics/history ────────────────────────────────────────────────
+exports.history = async (req, res) => {
+  try {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    const history = await getNotificationsByIP(ip);
+    res.json({ success: true, data: history });
+  } catch (error) {
+    logger.error('❌ Analytics history failed:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to get history' });
   }
 };

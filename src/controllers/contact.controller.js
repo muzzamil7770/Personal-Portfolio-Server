@@ -1,6 +1,6 @@
 const { contactSchema } = require('../middlewares/validator');
 const { sendContactNotification, sendContactThankYou } = require('../services/email.service');
-const { saveContact, getAllContacts, getContactById, updateContact, deleteContact } = require('../utils/db');
+const { saveContact, getAllContacts, getContactById, updateContact, deleteContact, saveNotification } = require('../utils/db');
 const logger = require('../utils/logger');
 
 const contactController = async (req, res, next) => {
@@ -24,6 +24,32 @@ const contactController = async (req, res, next) => {
 
     await saveContact(record);
     logger.info(`💾 Contact saved to Firestore: ${record.id}`);
+
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+
+    // Socket emit + Persistent notification
+    try {
+      const { getIO } = require('../socket');
+      const io = getIO();
+      io.emit('new-notification', {
+        type: 'contact',
+        title: '✉ New Contact Message',
+        message: `Message from ${name} (${email}): ${subject}`,
+        data: record,
+        time: new Date().toISOString()
+      });
+
+      await saveNotification({
+        clientIp,
+        type: 'contact',
+        title: '✉ Message Sent',
+        message: `Your message regarding "${subject}" was sent successfully.`,
+        data: record,
+        status: 'success'
+      });
+    } catch (ioErr) {
+      logger.warn('Socket/Notification failed:', ioErr.message);
+    }
 
     try {
       await Promise.all([

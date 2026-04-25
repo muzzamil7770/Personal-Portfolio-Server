@@ -6,6 +6,7 @@ const { track, heartbeat, live, stats } = require('../controllers/analytics.cont
 router.post('/track', track);          // public — called on every page load
 router.post('/heartbeat', heartbeat);  // public — called every 30s to keep session alive
 router.get('/live', live);             // public — watching count only
+router.get('/history', require('../controllers/analytics.controller').history); // public — fetch history by client IP
 router.get('/stats', verifyToken, stats);     // admin only — full stats + logs
 
 module.exports = router;

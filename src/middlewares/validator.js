@@ -13,7 +13,7 @@ const contactSchema = Joi.object({
       'string.max': 'Name must be less than 100 characters',
       'any.required': 'Name is required'
     }),
-  
+
   email: Joi.string()
     .email()
     .required()
@@ -22,7 +22,7 @@ const contactSchema = Joi.object({
       'string.email': 'Please provide a valid email address',
       'any.required': 'Email is required'
     }),
-  
+
   subject: Joi.string()
     .min(5)
     .max(200)
@@ -33,7 +33,7 @@ const contactSchema = Joi.object({
       'string.min': 'Subject must be at least 5 characters',
       'any.required': 'Subject is required'
     }),
-  
+
   message: Joi.string()
     .min(10)
     .max(5000)
@@ -58,7 +58,7 @@ const hireSchema = Joi.object({
       'string.min': 'Name must be at least 2 characters',
       'any.required': 'Name is required'
     }),
-  
+
   email: Joi.string()
     .email()
     .required()
@@ -67,7 +67,7 @@ const hireSchema = Joi.object({
       'string.email': 'Please provide a valid email address',
       'any.required': 'Email is required'
     }),
-  
+
   budget: Joi.string()
     .max(100)
     .optional()
@@ -76,7 +76,7 @@ const hireSchema = Joi.object({
       'string.base': 'Budget must be a string',
       'string.max': 'Budget must be less than 100 characters'
     }),
-  
+
   message: Joi.string()
     .min(10)
     .max(5000)
@@ -87,7 +87,7 @@ const hireSchema = Joi.object({
       'string.min': 'Message must be at least 10 characters',
       'any.required': 'Message is required'
     }),
-  
+
   services: Joi.string()
     .optional()
     .allow('')
@@ -96,7 +96,16 @@ const hireSchema = Joi.object({
     })
 });
 
+const meetingSchema = Joi.object({
+  name: Joi.string().min(2).max(100).required(),
+  email: Joi.string().email().required(),
+  date: Joi.string().required(), // expect YYYY-MM-DD
+  time: Joi.string().required(), // expect HH:mm
+  topic: Joi.string().min(5).max(500).required()
+});
+
 module.exports = {
   contactSchema,
-  hireSchema
+  hireSchema,
+  meetingSchema
 };

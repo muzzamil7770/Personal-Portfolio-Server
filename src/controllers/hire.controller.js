@@ -1,6 +1,6 @@
 const { hireSchema } = require('../middlewares/validator');
 const { sendHireNotification, sendHireThankYou } = require('../services/email.service');
-const { saveHire, getAllHires, getHireById, updateHire, deleteHire } = require('../utils/db');
+const { saveHire, getAllHires, getHireById, updateHire, deleteHire, saveNotification } = require('../utils/db');
 const logger = require('../utils/logger');
 
 const hireController = async (req, res, next) => {
@@ -27,6 +27,32 @@ const hireController = async (req, res, next) => {
 
     await saveHire(record);
     logger.info(`💾 Hire request saved to Firestore: ${record.id}`);
+
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+
+    // Socket emit + Persistent notification
+    try {
+      const { getIO } = require('../socket');
+      const io = getIO();
+      io.emit('new-notification', {
+        type: 'hire',
+        title: '💼 New Hire Request',
+        message: `Inquiry from ${name} (${email}) - Budget: ${budget}`,
+        data: record,
+        time: new Date().toISOString()
+      });
+
+      await saveNotification({
+        clientIp,
+        type: 'hire',
+        title: '💼 Inquiry Received',
+        message: `Your project inquiry regarding "${services}" was received.`,
+        data: record,
+        status: 'success'
+      });
+    } catch (ioErr) {
+      logger.warn('Socket/Notification failed:', ioErr.message);
+    }
 
     try {
       await Promise.all([

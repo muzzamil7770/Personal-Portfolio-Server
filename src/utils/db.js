@@ -83,7 +83,112 @@ const deleteHire = async (id) => {
   await db.collection('hires').doc(id).delete();
 };
 
+// ── Meetings ──────────────────────────────────────────────────────────────────
+
+const saveMeeting = async (record) => {
+  const db = getFirestore();
+  if (!db) {
+    logger.warn('⚠️  Skipping meeting save - Firebase not available');
+    return;
+  }
+  await db.collection('meetings').doc(record.id).set(record);
+};
+
+const getAllMeetings = async () => {
+  const db = getFirestore();
+  if (!db) return [];
+  const snap = await db.collection('meetings').orderBy('createdAt', 'desc').get();
+  return snap.docs.map(d => d.data());
+};
+
+const getMeetingByDateTime = async (date, time) => {
+  const db = getFirestore();
+  if (!db) return null;
+  const snap = await db.collection('meetings')
+    .where('date', '==', date)
+    .where('time', '==', time)
+    .get();
+  return snap.empty ? null : snap.docs[0].data();
+};
+
+const getMeetingsByDateAndIP = async (date, ip) => {
+  const db = getFirestore();
+  if (!db) return [];
+  const snap = await db.collection('meetings')
+    .where('date', '==', date)
+    .where('clientIp', '==', ip)
+    .get();
+  return snap.docs.map(d => d.data());
+};
+
+const updateMeeting = async (id, updates) => {
+  const db = getFirestore();
+  if (!db) throw new Error('Firebase not available');
+  const { id: _id, createdAt, ...safeUpdates } = updates;
+  await db.collection('meetings').doc(id).update(safeUpdates);
+  const doc = await db.collection('meetings').doc(id).get();
+  return doc.data();
+};
+
+const deleteMeeting = async (id) => {
+  const db = getFirestore();
+  if (!db) throw new Error('Firebase not available');
+  await db.collection('meetings').doc(id).delete();
+};
+
+// ── Availability ──────────────────────────────────────────────────────────────
+
+const saveAvailability = async (record) => {
+  const db = getFirestore();
+  if (!db) {
+    logger.warn('⚠️  Skipping availability save - Firebase not available');
+    return;
+  }
+  // Store by date string e.g. "2024-05-12"
+  await db.collection('availability').doc(record.id).set(record);
+};
+
+const getAllAvailability = async () => {
+  const db = getFirestore();
+  if (!db) return [];
+  const snap = await db.collection('availability').get();
+  return snap.docs.map(d => d.data());
+};
+
+const deleteAvailability = async (id) => {
+  const db = getFirestore();
+  if (!db) return;
+  await db.collection('availability').doc(id).delete();
+};
+
+// ── Notifications (History by IP) ─────────────────────────────────────────────
+
+const saveNotification = async (data) => {
+  const db = getFirestore();
+  if (!db) return;
+  await db.collection('notifications').add({
+    ...data,
+    timestamp: new Date().toISOString()
+  });
+};
+
+const getNotificationsByIP = async (ip) => {
+  const db = getFirestore();
+  if (!db) return [];
+  // NOTE: Avoid .orderBy() + .where() combo — requires a Firestore composite index.
+  // Sort in-memory instead (limit is only 20, so this is trivially fast).
+  const snap = await db.collection('notifications')
+    .where('clientIp', '==', ip)
+    .limit(20)
+    .get();
+  const docs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return docs.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1));
+};
+
 module.exports = {
   saveContact, getAllContacts, getContactById, updateContact, deleteContact,
-  saveHire, getAllHires, getHireById, updateHire, deleteHire
+  saveHire, getAllHires, getHireById, updateHire, deleteHire,
+  saveMeeting, getAllMeetings, getMeetingByDateTime, getMeetingsByDateAndIP, updateMeeting, deleteMeeting,
+  saveAvailability, getAllAvailability, deleteAvailability,
+  saveNotification, getNotificationsByIP
 };
