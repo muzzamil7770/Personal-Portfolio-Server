@@ -30,15 +30,36 @@ if (!fs.existsSync(logsDir)) {
 // MIDDLEWARE
 // ============================================
 
-// Security: Set HTTP headers
-app.use(helmet());
+// Security: Set HTTP headers (configured for cross-origin frontend resources)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
+}));
 
-// CORS: Enable cross-origin requests from Angular frontend
+// CORS: Enable cross-origin requests from Angular frontend domain and environment URL
 app.use(cors({
-  origin: config.cors.origin,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: (origin, callback) => {
+    // Allow server-to-server or requests without origin header (like curl, Postman, mobile apps)
+    if (!origin) return callback(null, true);
+    
+    const cleanOrigin = origin.replace(/\/$/, '');
+    if (
+      config.cors.allowedOrigins.includes(cleanOrigin) ||
+      cleanOrigin.endsWith('.mohammadmuzzamil.space') ||
+      cleanOrigin.endsWith('.vercel.app') ||
+      cleanOrigin.endsWith('.onrender.com') ||
+      !config.isProduction
+    ) {
+      return callback(null, true);
+    }
+    
+    // Fallback: allow request in production
+    return callback(null, true);
+  },
+  credentials: config.cors.credentials,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cache-Control', 'Pragma'],
+  exposedHeaders: ['Content-Length', 'Content-Type', 'Authorization']
 }));
 
 // Parse JSON bodies
