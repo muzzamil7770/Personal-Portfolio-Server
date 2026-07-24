@@ -36,20 +36,16 @@ app.use(helmet({
   crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
 }));
 
-// CORS: Enable cross-origin requests from Angular frontend domain and environment URL
+// CORS: Enable cross-origin requests strictly matching FRONTEND_URL in .env
 app.use(cors({
   origin: (origin, callback) => {
     // Allow server-to-server or requests without origin header (like curl, Postman, mobile apps)
     if (!origin) return callback(null, true);
     
     const cleanOrigin = origin.replace(/\/$/, '');
-    if (
-      config.cors.allowedOrigins.includes(cleanOrigin) ||
-      cleanOrigin.endsWith('.mohammadmuzzamil.space') ||
-      cleanOrigin.endsWith('.vercel.app') ||
-      cleanOrigin.endsWith('.onrender.com') ||
-      !config.isProduction
-    ) {
+    const targetOrigin = (config.cors.frontendUrl || '').replace(/\/$/, '');
+    
+    if (cleanOrigin === targetOrigin || !config.isProduction) {
       return callback(null, true);
     }
     
