@@ -2,10 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { contactController, getContacts, getContactById, updateContact, deleteContact } = require('../controllers/contact.controller');
 const { verifyToken } = require('../middlewares/authMiddleware');
-const dailyIpLimit = require('../middlewares/dailyIpLimit');
 
-// Public — form submission (daily IP limit applies in production)
-router.post('/', dailyIpLimit, contactController);
+// Public — form submission
+router.post('/', contactController);
 
 // Admin CRUD (protected)
 router.get('/', verifyToken, getContacts);

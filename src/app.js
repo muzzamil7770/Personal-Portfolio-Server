@@ -2,11 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 const config = require('./config');
 const logger = require('./utils/logger');
+const getLandingPageHtml = require('./views/landingPage');
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler');
 const contactRoutes = require('./routes/contact.routes');
 const hireRoutes = require('./routes/hire.routes');
@@ -55,55 +55,13 @@ app.use(morgan('combined', {
 }));
 
 // ============================================
-// RATE LIMITING
-// ============================================
-
-// General rate limiter
-const generalLimiter = rateLimit({
-  windowMs: 150 * 60 * 1000, // 15 minutes
-  max: 1001, // Limit each IP to 100 requests per windowMs
-  message: {
-    success: false,
-    message: 'Too many requests from this IP, please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => {
-    const authHeader = req.headers.authorization;
-    const isAnalyticsHeartbeat = req.path === '/api/analytics/heartbeat';
-    const isAnalyticsLive = req.path === '/api/analytics/live';
-    return authHeader && authHeader.startsWith('Bearer ') || isAnalyticsHeartbeat || isAnalyticsLive;
-  }
-});
-
-// Strict rate limiter for PUBLIC email form submissions only
-const emailLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // Limit each IP to 5 public email submissions per hour
-  message: {
-    success: false,
-    message: 'Too many email requests, please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  // Skip rate limiting for authenticated admin requests
-  skip: (req) => {
-    const authHeader = req.headers.authorization;
-    return authHeader && authHeader.startsWith('Bearer ');
-  }
-});
-
-// Apply general rate limiter
-app.use('/api', generalLimiter);
-
-// Apply strict rate limiter to PUBLIC email submissions only
-// Admin routes (GET/PUT/DELETE) are excluded via the skip function above
-app.post('/api/contact', emailLimiter);
-app.post('/api/hire', emailLimiter);
-
-// ============================================
 // ROUTES
 // ============================================
+
+// Server Landing Page & API Docs (Index route)
+app.get('/', (req, res) => {
+  res.send(getLandingPageHtml(config));
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

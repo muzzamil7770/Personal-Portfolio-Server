@@ -1,28 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const rateLimit = require('express-rate-limit');
 const config = require('../config');
 const logger = require('../utils/logger');
 const { generate2FACode, store2FACode, verify2FACode } = require('../services/twoFA.service');
 const { send2FAVerification } = require('../services/email.service');
 
-const loginLimiter = rateLimit({
-  windowMs: 3 * 60 * 1000,
-  max: 10,
-  message: { success: false, message: 'Too many login attempts. Try again in 3 minutes.' }
-});
-
-const twoFALimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
-  max: 5,
-  message: { success: false, message: 'Too many 2FA requests. Please wait before requesting again.' }
-});
-
 /**
  * Step 1: Verify username/password, then send 2FA code
  */
-router.post('/login', loginLimiter, async (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password)
@@ -64,7 +51,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 /**
  * Step 2: Verify 2FA code and return JWT token
  */
-router.post('/verify-2fa', twoFALimiter, (req, res) => {
+router.post('/verify-2fa', (req, res) => {
   const { code } = req.body;
 
   if (!code || code.length !== 6)
@@ -90,7 +77,7 @@ router.post('/verify-2fa', twoFALimiter, (req, res) => {
 /**
  * Resend 2FA code
  */
-router.post('/resend-2fa', twoFALimiter, async (req, res) => {
+router.post('/resend-2fa', async (req, res) => {
   const adminEmail = process.env.EMAIL_USER;
   const code = generate2FACode();
   store2FACode(adminEmail, code);
