@@ -2,6 +2,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const axios = require('axios');
 const logger = require('../utils/logger');
 const config = require('../config');
+const { getPublishedBlogs } = require('../utils/db');
 
 /**
  * AI Chatbot Service
@@ -266,10 +267,27 @@ class AIChatbotService {
         command: 'testimonials',
       }),
 
-      'blog': () => ({
-        text: `📝 **Blog & Articles**\n\nMuhammad shares knowledge through technical blog posts:\n\n**Topics Covered:**\n• Angular best practices\n• Full-stack development tips\n• Architecture patterns\n• Performance optimization\n• Security implementations\n\n*Blog section coming soon with in-depth articles and tutorials!*`,
-        command: 'blog',
-      }),
+      'blog': async () => {
+        try {
+          const blogs = await getPublishedBlogs();
+          if (blogs.length === 0) {
+            return {
+              text: `📝 **Blog & Articles**\n\nNo blog posts have been published yet. Check back soon for articles on Angular, Full-Stack Development, and more!`,
+              command: 'blog'
+            };
+          }
+          const blogList = blogs.slice(0, 5).map((b, i) => `${i + 1}. **${b.title}** (${b.category})`).join('\n');
+          return {
+            text: `📝 **Latest Blog Posts**\n\n${blogList}\n\nVisit the blog section to read full articles!`,
+            command: 'blog'
+          };
+        } catch (err) {
+          return {
+            text: `📝 **Blog & Articles**\n\nMuhammad shares knowledge through technical blog posts about Angular, Full-Stack development, and more. Blog section coming soon!`,
+            command: 'blog'
+          };
+        }
+      },
 
       'social': () => ({
         text: `🌐 **Connect Online**\n\nFind Muhammad Muzzamil on:\n\n• **GitHub** - Portfolio repositories\n• **LinkedIn** - Professional network\n• **Portfolio Website** - Full showcase\n\n*Links available on the portfolio website!*`,

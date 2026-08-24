@@ -185,10 +185,72 @@ const getNotificationsByIP = async (ip) => {
   return docs.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1));
 };
 
+// ── Blogs ──────────────────────────────────────────────────────────────────────
+
+const saveBlog = async (record) => {
+  const db = getFirestore();
+  if (!db) {
+    logger.warn('Skipping blog save - Firebase not available');
+    return;
+  }
+  await db.collection('blogs').doc(record.id).set(record);
+};
+
+const getAllBlogs = async () => {
+  const db = getFirestore();
+  if (!db) return [];
+  const snap = await db.collection('blogs').orderBy('createdAt', 'desc').get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+const getPublishedBlogs = async () => {
+  const db = getFirestore();
+  if (!db) return [];
+  const snap = await db.collection('blogs')
+    .where('status', 'in', ['published'])
+    .get();
+  const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return docs.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+};
+
+const getScheduledBlogs = async () => {
+  const db = getFirestore();
+  if (!db) return [];
+  const snap = await db.collection('blogs')
+    .where('status', '==', 'scheduled')
+    .orderBy('scheduledAt', 'asc')
+    .get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+const getBlogById = async (id) => {
+  const db = getFirestore();
+  if (!db) return null;
+  const doc = await db.collection('blogs').doc(id).get();
+  return doc.exists ? { id: doc.id, ...doc.data() } : null;
+};
+
+const updateBlog = async (id, updates) => {
+  const db = getFirestore();
+  if (!db) throw new Error('Firebase not available');
+  const { id: _id, createdAt, ...safeUpdates } = updates;
+  if (!Object.keys(safeUpdates).length) throw new Error('No valid fields to update');
+  await db.collection('blogs').doc(id).update(safeUpdates);
+  const doc = await db.collection('blogs').doc(id).get();
+  return { id: doc.id, ...doc.data() };
+};
+
+const deleteBlog = async (id) => {
+  const db = getFirestore();
+  if (!db) throw new Error('Firebase not available');
+  await db.collection('blogs').doc(id).delete();
+};
+
 module.exports = {
   saveContact, getAllContacts, getContactById, updateContact, deleteContact,
   saveHire, getAllHires, getHireById, updateHire, deleteHire,
   saveMeeting, getAllMeetings, getMeetingByDateTime, getMeetingsByDateAndIP, updateMeeting, deleteMeeting,
   saveAvailability, getAllAvailability, deleteAvailability,
-  saveNotification, getNotificationsByIP
+  saveNotification, getNotificationsByIP,
+  saveBlog, getAllBlogs, getPublishedBlogs, getScheduledBlogs, getBlogById, updateBlog, deleteBlog
 };

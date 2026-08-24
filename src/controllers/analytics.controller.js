@@ -18,7 +18,6 @@ exports.heartbeat = async (req, res) => {
   try {
     const rtdb = getRTDB();
     if (!rtdb) {
-      // RTDB not available, just return success without tracking
       return res.json({ success: true, watching: 0 });
     }
     
@@ -56,7 +55,6 @@ exports.track = async (req, res) => {
     const db = getFirestore();
     const rtdb = getRTDB();
 
-    // If Firebase is not available, just return success without tracking
     if (!db || !rtdb) {
       return res.json({ success: true, message: 'Analytics tracking skipped (Firebase not configured)' });
     }
@@ -99,6 +97,7 @@ exports.track = async (req, res) => {
         connectionType: connectionType || '',
         date: todayStr,
         month: now.toISOString().slice(0, 7),
+        year: now.getFullYear().toString(),
         timestamp: now.toISOString()
       };
       await visitsRef.doc(visitRecord.id).set(visitRecord);
@@ -139,7 +138,6 @@ exports.stats = async (req, res) => {
     const todayStr = now.toISOString().slice(0, 10);
     const monthStr = now.toISOString().slice(0, 7);
 
-    // Get all visits from Firestore
     const visitsSnap = await db.collection('visits').orderBy('timestamp', 'desc').get();
     const visits = visitsSnap.docs.map(d => d.data());
 
@@ -147,7 +145,6 @@ exports.stats = async (req, res) => {
     const thisMonth = visits.filter(v => v.month === monthStr).length;
     const allTime = visits.length;
 
-    // Monthly breakdown for chart
     const byMonth = {};
     visits.forEach(v => {
       byMonth[v.month] = (byMonth[v.month] || 0) + 1;
@@ -157,7 +154,6 @@ exports.stats = async (req, res) => {
       .slice(-12)
       .map(([month, count]) => ({ month, count }));
 
-    // Live count from Realtime DB
     let watching = 0;
     const presenceSnap = await rtdb.ref('presence').get();
     if (presenceSnap.exists()) {
@@ -179,6 +175,90 @@ exports.stats = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to get analytics stats' });
   }
+};
+
+// ── GET /api/analytics/visitors ───────────────────────────────────────────────
+exports.visitors = async (req, res) => {
+  try {
+    const db = getFirestore();
+    if (!db) {
+      return res.status(500).json({ success: false, message: 'Database not available' });
+    }
+
+    const {
+      startDate,
+      endDate,
+      device,
+      ip
+    } = req.query;
+
+    let query = db.collection('visits').orderBy('timestamp', 'desc');
+
+    if (startDate) {
+      query = query.where('date', '>=', startDate);
+    }
+    if (endDate) {
+      query = query.where('date', '<=', endDate);
+    }
+    if (device) {
+      query = query.where('device', '==', device);
+    }
+    if (ip) {
+      query = query.where('ip', '==', ip);
+    }
+
+    const visitsSnap = await query.get();
+    const visits = visitsSnap.docs.map(d => d.data());
+
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    const currentWeek = getWeekRange(now);
+    const currentMonth = now.toISOString().slice(0, 7);
+    const currentYear = now.getFullYear().toString();
+
+    const todayCount = visits.filter(v => v.date === todayStr).length;
+    const thisWeekCount = visits.filter(v => {
+      const d = new Date(v.timestamp);
+      return d >= currentWeek.start && d <= currentWeek.end;
+    }).length;
+    const thisMonthCount = visits.filter(v => v.month === currentMonth).length;
+    const thisYearCount = visits.filter(v => v.year === currentYear).length;
+
+    const devices = [...new Set(visits.map(v => v.device).filter(Boolean))];
+    const locations = [...new Set(visits.map(v => v.ip).filter(Boolean))];
+
+    res.json({
+      success: true,
+      data: {
+        visitors: visits,
+        summary: {
+          today: todayCount,
+          thisWeek: thisWeekCount,
+          thisMonth: thisMonthCount,
+          thisYear: thisYearCount
+        },
+        filters: {
+          devices,
+          locations
+        }
+      }
+    });
+  } catch (error) {
+    logger.error('❌ Analytics visitors failed:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to get visitors' });
+  }
+};
+
+const getWeekRange = (date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const start = new Date(d.setDate(diff));
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
 };
 
 // ── GET /api/analytics/history ────────────────────────────────────────────────

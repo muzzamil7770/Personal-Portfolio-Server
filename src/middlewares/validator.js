@@ -99,13 +99,45 @@ const hireSchema = Joi.object({
 const meetingSchema = Joi.object({
   name: Joi.string().min(2).max(100).required(),
   email: Joi.string().email().required(),
-  date: Joi.string().required(), // expect YYYY-MM-DD
-  time: Joi.string().required(), // expect HH:mm
+  date: Joi.string().required(),
+  time: Joi.string().required(),
   topic: Joi.string().min(5).max(500).required()
+});
+
+const blogSchema = Joi.object({
+  title: Joi.string().min(3).max(200).required().messages({
+    'string.base': 'Title must be a string',
+    'string.empty': 'Title is required',
+    'string.min': 'Title must be at least 3 characters',
+    'string.max': 'Title must be less than 200 characters',
+    'any.required': 'Title is required'
+  }),
+  excerpt: Joi.string().min(10).max(500).required().messages({
+    'string.base': 'Excerpt must be a string',
+    'string.empty': 'Excerpt is required',
+    'string.min': 'Excerpt must be at least 10 characters',
+    'string.max': 'Excerpt must be less than 500 characters',
+    'any.required': 'Excerpt is required'
+  }),
+  content: Joi.string().required().messages({
+    'string.base': 'Content must be a string',
+    'string.empty': 'Content is required',
+    'any.required': 'Content is required'
+  }),
+  category: Joi.string().min(2).max(50).required(),
+  tags: Joi.array().items(Joi.string().max(60)).optional(),
+  image: Joi.string().uri().optional().allow(''),
+  status: Joi.string().valid('draft', 'published', 'scheduled').default('draft'),
+  scheduledAt: Joi.string().optional().allow('').allow(null),
+  author: Joi.string().optional().allow(''),
+  readTime: Joi.string().optional().allow(''),
+  seoTitle: Joi.string().max(60).optional().allow(''),
+  seoDescription: Joi.string().max(160).optional().allow('')
 });
 
 module.exports = {
   contactSchema,
   hireSchema,
-  meetingSchema
+  meetingSchema,
+  blogSchema
 };

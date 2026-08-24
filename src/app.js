@@ -16,6 +16,7 @@ const analyticsRoutes = require('./routes/analytics.routes');
 const aiChatbotRoutes = require('./routes/aiChatbot.routes');
 const meetingRoutes = require('./routes/meeting.routes');
 const availabilityRoutes = require('./routes/availability.routes');
+const blogRoutes = require('./routes/blog.routes');
 
 // Initialize Express app
 const app = express();
@@ -90,6 +91,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Serve robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.sendFile(path.join(__dirname, '../public/robots.txt'));
+});
+
+// Serve sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+  res.type('application/xml');
+  res.sendFile(path.join(__dirname, '../public/sitemap.xml'));
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
@@ -99,6 +112,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chat', aiChatbotRoutes);
 app.use('/api/meetings', meetingRoutes);
 app.use('/api/availability', availabilityRoutes);
+app.use('/api/blog', blogRoutes);
 
 // ============================================
 // ERROR HANDLING
