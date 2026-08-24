@@ -4,9 +4,9 @@
   "description": "Express.js backend for personal portfolio application",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js --ignore database/",
-    "build": "echo 'No build step required for Node.js'"
+    "start": "node init && node server.js",
+    "dev": "node init && nodemon server.js --ignore database/",
+    "build": "node init && echo 'No build step required for Node.js'"
   },
   "keywords": [
     "express",
