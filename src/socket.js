@@ -16,8 +16,13 @@ const getIpFromSocket = (socket) => {
   );
 };
 
+const sanitizePath = (str) => {
+  return str.replace(/[.#$\[\]]/g, '_');
+};
+
 const updatePresence = async (rtdb, ip, page) => {
-  const sessionRef = rtdb.ref(`presence/${ip}`);
+  const safeIp = sanitizePath(ip);
+  const sessionRef = rtdb.ref(`presence/${safeIp}`);
   await sessionRef.set({ lastSeen: Date.now(), page: page || '/' });
 };
 
@@ -104,8 +109,12 @@ const initSocket = (server) => {
         
         const rtdb = getRTDB();
         if (rtdb) {
-          await updatePresence(rtdb, ip, entry.page);
-          await broadcastLiveUpdate(rtdb);
+          try {
+            await updatePresence(rtdb, ip, entry.page);
+            await broadcastLiveUpdate(rtdb);
+          } catch (err) {
+            logger.error('Failed to update presence:', err.message);
+          }
         }
 
         socket.on('analytics:track', async (data) => {
@@ -167,9 +176,13 @@ const initSocket = (server) => {
             }
 
             if (rtdb) {
-              await updatePresence(rtdb, ip, page);
-              await broadcastLiveUpdate(rtdb);
-              await broadcastStatsUpdate(db, rtdb);
+              try {
+                await updatePresence(rtdb, ip, page);
+                await broadcastLiveUpdate(rtdb);
+                await broadcastStatsUpdate(db, rtdb);
+              } catch (err) {
+                logger.error('Failed to update presence during analytics track:', err.message);
+              }
             }
 
             socket.emit('analytics:tracked', { success: true });
@@ -197,9 +210,16 @@ const initSocket = (server) => {
               liveByIp.get(ip).lastSeen = Date.now();
             }
 
-            await updatePresence(rtdb, ip, page);
-            const watching = await broadcastLiveUpdate(rtdb);
-            socket.emit('analytics:heartbeated', { success: true, watching });
+            if (rtdb) {
+              try {
+                await updatePresence(rtdb, ip, page);
+                const watching = await broadcastLiveUpdate(rtdb);
+                socket.emit('analytics:heartbeated', { success: true, watching });
+              } catch (err) {
+                logger.error('Failed to update presence during heartbeat:', err.message);
+                socket.emit('analytics:heartbeated', { success: true, watching: 0 });
+              }
+            }
           } catch (error) {
             logger.error('❌ Heartbeat via socket failed:', error.message);
             socket.emit('analytics:error', { message: 'Heartbeat failed' });
@@ -296,8 +316,13 @@ const initSocket = (server) => {
               if (entry.socketIds.size === 0) {
                 liveByIp.delete(ip);
                 if (rtdb) {
-                  await rtdb.ref(`presence/${ip}`).remove();
-                  await broadcastLiveUpdate(rtdb);
+                  try {
+                    const safeIp = sanitizePath(ip);
+                    await rtdb.ref(`presence/${safeIp}`).remove();
+                    await broadcastLiveUpdate(rtdb);
+                  } catch (err) {
+                    logger.error('Failed to remove presence on disconnect:', err.message);
+                  }
                 }
               }
             }
